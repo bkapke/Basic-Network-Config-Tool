@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    
+    <title>Config</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <!-- todo incorporate knockout -->
+    <script src="knockout.js"></script>
+    <script src="data-model.js"></script>
+    <link href="application.css" rel="stylesheet">
+</head>
+
+<body>
+    
+    <div class="container">
+        <h1>Router Config <button type="button" id="download" class="btn btn-primary btn-lg pull-right">Update</button></h1>
+        <h2>Run with error console open for extended output.</h2>
+        <strong>Tab through and build up some settings. Hitting update will update the json text in the final tab</strong>
+        <p>This could be parsed in to json an passed to a server side api to dump it into a server.  It can really be outpputted
+           however we want at this point.  There will need to be some more data work and validation to get it running really tight.</p>
+        <br>
+        
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#general" data-toggle="tab">General</a></li>
+            <li><a href="#ports" data-toggle="tab">Ports</a></li>
+            <li><a href="#stp" data-toggle="tab">STP</a></li>
+            <li><a href="#vlans" data-toggle="tab">Vlans</a></li>
+            <li><a href="#vrrp" data-toggle="tab">VRRP/HSRP</a></li>
+            <li><a href="#file" data-toggle="tab">File</a></li>
+        </ul>
+        
+        <!-- Tab panes -->
+        <div class="tab-content">
+                
+            <div class="tab-pane active" id="general">
+                <div class="row-fluid">
+                    <h2>General Settings</h2>
+                </div>
+                <br>
+                <div class="row-fluid">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="vendor" class="col-sm-2 control-label">Vendor</label>
+                            <div class="col-sm-10">
+                                <select id="vendor"  class="form-control" data-bind='options: vendors, optionsCaption: vendors[0], value: vendor'></select></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hostname" class="col-sm-2 control-label">Hostname</label>
+                            <div class="col-sm-10">
+                                <input id="hostname" type="text" class="form-control" data-bind="value: hostname">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ip-address" class="col-sm-2 control-label">IP Address</label>
+                            <div class="col-sm-10">
+                                <input id="ip-address" type="text" class="form-control" data-bind="value: ip">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subnet" class="col-sm-2 control-label">Subnet Mask</label>
+                            <div class="col-sm-10">
+                                <input id="subnet" type="text" class="form-control" data-bind="value: subnetMask">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gateway" class="col-sm-2 control-label">Default Gateway</label>
+                            <div class="col-sm-10">
+                                <input id="gateway" type="text" class="form-control" data-bind="value: defaultGateway">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="routing_enabled" class="col-sm-2 control-label">Routing Enabled</label>
+                            <div class="col-sm-10">
+                                <select id="routing_enabled"  class="form-control" data-bind='options: routingEnabled, optionsCaption: routingEnabled[0], value: routingChoice'></select></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="management_vlan" class="col-sm-2 control-label">Management Vlan</label>
+                            <div class="col-sm-10">
+                                <input id="gateway" type="text" class="form-control" data-bind="value: managementVlan">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="stack" class="col-sm-2 control-label">Stack</label>
+                            <div class="col-sm-10">
+                                <select id="stack"  class="form-control" data-bind='options: stack, optionsCaption: stack[0], value: stackChoice'></select></p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                
+            </div>
+            <div class="tab-pane" id="ports">
+                <h2>Ports <button type="button" id="addPort" class="btn btn-primary btn-lg pull-right">Add Port</button></h2>
+                <div class="clear"></div>
+                <br>
+                <!-- ###########################
+                     #        PORTS            #
+                     ###########################
+                -->
+                <table  class="table table-bordered" id="portsTable" data-bind="foreach: ports">
+                    <tr id="portsTableHead" data-bind="visible: $index() == 0">
+                        <td>Int Name</td>
+                        <td>Description</td>
+                        <td>Speed <br>[auto/10/100/<br>1000/10000]</td>
+                        <td>Duplex<br>[auto / full<br> / half]</td>
+                        <td>Vlans No. [1/ 1,2]</td>
+                        <td>Vlan Tagging<br>(802.1q) [y / n]</td>
+                        <td>Native Vlan<br>No.(PVID at Nortel)</td>
+                        <td>Spanning tree<br>Port mode<br>[ normal / portfast ]</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" data-bind="value: $data.intName"></td>
+                        <td><input type="text" data-bind="value: $data.descr"></td>
+                        <td><input type="text" data-bind="value: $data.speed"></td>
+                        <td><input type="text" data-bind="value: $data.duplex"></td>
+                        <td><input type="text" data-bind="value: $data.vlansNo"></td>
+                        <td><input type="text" data-bind="value: $data.tagging"></td>
+                        <td><input type="text" data-bind="value: $data.nativeVlanNo"></td>
+                        <td><input type="text" data-bind="value: $data.portMode"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tab-pane" id="stp">
+                <h2>STP</h2>
+                <br>
+                <!-- ###########################
+                     #        STP              #
+                     ###########################
+                -->  
+                <div class="form-group">
+                    <label for="stp-mode" class="col-sm-2 control-label">Mode</label>
+                    <div class="col-sm-10">
+                        <select id="stp-mode"  class="form-control" data-bind='options: stpOptions, optionsCaption: stpOptions[0], value: stpChoice'></select></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bridge-priority" class="col-sm-2 control-label">Bridge Priority</label>
+                    <div class="col-sm-10">
+                        <input id="bridge-priority" type="text" class="form-control" data-bind="value: bridgePriority">
+                    </div>
+                </div>
+
+                <div class="clear"></div>
+                <br><br><br><br><br><br>
+                <dl>
+                    <dt>Enter A Value</dt>
+                    <dd>0 to 61440 increments by 4096</dd>
+                    <dt>Defaults:</dt>
+                    <dd>switches : 32768</dd>
+                    <dd>Root Bridge Priority : 4096</dd>
+                </dl>
+            </div>
+            <div class="tab-pane" id="vlans">
+                <h2>Vlans <button type="button" id="addVlan" class="btn btn-primary btn-lg pull-right">Add Vlan</button></h2>
+                <br>
+                    
+                <!-- ###########################
+                     #        VLANS            #
+                     ###########################
+                -->
+                
+                <div class="form-group">
+                    <label for="configure-vlan" class="col-sm-2 control-label">Configure vlans</label>
+                    <div class="col-sm-10">
+                        <select id="configure-vlan"  class="form-control" data-bind='options: vlanBool, optionsCaption: vlanBool[0], value: vlanBoolChoice'></select></p>
+                    </div>
+                </div>
+                <table  class="table table-bordered" id="vlanTable" data-bind="foreach: vlans">
+                    <tr id="portsTableHead" data-bind="visible: $index() == 0">
+                        <td>No.</td>
+                        <td>Name</td>
+                        <td>ip</td>
+                        <td>subnetMask</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" data-bind="value: $data.no"></td>
+                        <td><input type="text" data-bind="value: $data.name"></td>
+                        <td><input type="text" data-bind="value: $data.ip"></td>
+                        <td><input type="text" data-bind="value: $data.subnetMask"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tab-pane" id="vrrp">
+                <h2>VRRP/HSRP <button type="button" id="addVrrp" class="btn btn-primary btn-lg pull-right">Add Vrrp</button></h2>
+                <br>
+                <!-- ###########################
+                     #     VRRP HSRP           #
+                     ###########################
+                -->
+                <div class="form-group">
+                    <label for="configure-vrrp" class="col-sm-2 control-label">Configure VRRP/HSSR</label>
+                    <div class="col-sm-10">
+                        <select id="configure-vrrp"  class="form-control" data-bind='options: vrrpOptions, optionsCaption: vrrpOptions[0], value: vrrpOptionsChoice'></select></p>
+                    </div>
+                </div>
+                <table  class="table table-bordered" id="vrrpTable" data-bind="foreach: vrrps">
+                    <tr id="portsTableHead" data-bind="visible: $index() == 0">
+                        <td>Vlan No.</td>
+                        <td>Redundancy group</td>
+                        <td>Redundancy IP (Cisco - HSRP All other - VRRP)</td>
+                        <td>Redundancy Priorety<br>(usually Master=150,Standby=100></td>
+                        <td>Redundancy preemption [y / n]</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" data-bind="value: $data.vlanNo"></td>
+                        <td><input type="text" data-bind="value: $data.vlanGroup"></td>
+                        <td><input type="text" data-bind="value: $data.redundancyIp"></td>
+                        <td><input type="text" data-bind="value: $data.redundancyPriority"></td>
+                        <td><input type="text" data-bind="value: $data.redundancyPreemption"></td>
+                    </tr>
+                </table>                
+            </div>
+            <div class="tab-pane" id="file">
+                <h2>File</h2>
+                
+                <!-- here is where we will gather the data and build a file -->
+                <!-- could be written out active x or copied and pasted -->
+                <!-- this may be able to be hidden and just accessed to write a file -->
+                <div id="fileField" class="hidden">
+                    <p data-bind="text: vendor"></p>
+                    <p data-bind="text: hostname, valueUpdate: 'keyup'"></p>
+                    <p data-bind="text: ip, valueUpdate: 'keyup'"></p>
+                    <p data-bind="text: subnetMask, valueUpdate: 'keyup'"></p>
+                    <p data-bind="text: defaultGateway, valueUpdate: 'keyup'"></p>
+                    <p data-bind="text: routingChoice"></p>
+                    <p data-bind="text: managementVlan"></p>
+                    <p data-bind="text: stackChoice"></p>
+                    <div data-bind="foreach: ports">
+                        <p data-bind="text: $data.intName + ' ' + $data.descr + ' ' + $data.speed + ' ' + $data.duplex + ' ' + $data.vlansNo + ' ' + $data.tagging + ' ' + $data.nativeVlanNo + ' ' + $data.portMode">
+                        </p>
+                    </div>
+                </div>
+                
+
+                <form class="form-horizontal">
+                    <textarea rows="15" id="exportFile" class="form-control">
+                        
+                    </textarea>
+                    <br>
+                    <br>
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <input id="storageName" type="text" class="form-control"  placeholder="Enter a name to store this in you browsers storage.">
+                        </div>
+                    </div>
+                    <br>
+                    <button type="button" id="saveToStorage" class="btn btn-primary btn-lg">Save Project</button>
+                    
+                    <ul data-bind="foreach: storedProjects()">
+                        <li >
+                            <p><span data-bind="text: $data.itemKey.replace('generatorStorage.','')"></span> : <a href="" data-bind="click: $parent.deleteStoredItem">Delete</a></p>
+                        </li>
+                    </ul>
+                </form>
+                <br>
+                
+
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+</html>

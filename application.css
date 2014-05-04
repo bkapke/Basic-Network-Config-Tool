@@ -1,0 +1,21 @@
+.table-bordered {
+    text-align: center;
+}
+
+.table-bordered {
+    max-width:1170px;
+    table-layout: fixed;
+}
+
+table>tbody+tbody {
+    border-top:none !important;
+}
+.table-bordered tr {
+    margin-top:-1px;
+}
+.table-bordered tr td input {
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    width: 100%;
+}
