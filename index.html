@@ -17,10 +17,10 @@
     
     <div class="container">
         <h1>Router Config <button type="button" id="download" class="btn btn-primary btn-lg pull-right">Update</button></h1>
-        <h2>Run with error console open for extended output.</h2>
+        <h3>Current File: <span style="color:red" data-bind="text : currentFile"></span></h3>
         <strong>Tab through and build up some settings. Hitting update will update the json text in the final tab</strong>
-        <p>This could be parsed in to json an passed to a server side api to dump it into a server.  It can really be outpputted
-           however we want at this point.  There will need to be some more data work and validation to get it running really tight.</p>
+        <p>This could be parsed in to json and passed to a server side api.  It can really be outpputted
+           however we want at this point.  There will need to be some more data work and validation to get it running really well.</p>
         <br>
         
         <!-- Nav tabs -->
@@ -31,6 +31,8 @@
             <li><a href="#vlans" data-toggle="tab">Vlans</a></li>
             <li><a href="#vrrp" data-toggle="tab">VRRP/HSRP</a></li>
             <li><a href="#file" data-toggle="tab">File</a></li>
+            <li><a href="#save" data-toggle="tab">Save and Load</a></li>
+            
         </ul>
         
         <!-- Tab panes -->
@@ -243,25 +245,29 @@
                     <textarea rows="15" id="exportFile" class="form-control">
                         
                     </textarea>
-                    <br>
-                    <br>
+                </form>
+                <br>
+                
+
+            </div>
+            <div class="tab-pane" id="save">
+                <h2>Save and Load</h2>
+                <h4 style="color:red">Caution this is only saved to your machines temporary browser storage.</h4>
+                <br>    
+                <form class="form-horizontal">
                     <div class="form-group">
                         <div class="col-sm-10">
                             <input id="storageName" type="text" class="form-control"  placeholder="Enter a name to store this in you browsers storage.">
                         </div>
                     </div>
-                    <br>
                     <button type="button" id="saveToStorage" class="btn btn-primary btn-lg">Save Project</button>
-                    
+                    <br><br>
                     <ul data-bind="foreach: storedProjects()">
                         <li >
-                            <p><span data-bind="text: $data.itemKey.replace('generatorStorage.','')"></span> : <a href="" data-bind="click: $parent.deleteStoredItem">Delete</a></p>
+                            <p><a href="" data-bind="click: $parent.loadFromStorage">Load</a> : <span data-bind="text: $data.itemKey.replace('generatorStorage.','')"></span> : <a href="" data-bind="click: $parent.deleteStoredItem">Delete</a></p>
                         </li>
                     </ul>
                 </form>
-                <br>
-                
-
             </div>
         </div>
     </div>

@@ -2,7 +2,7 @@ $(document).ready(function() {
     var self = this;
     var currentDataObject;
     this.viewModel = {
-        
+        currentFile : ko.observable('Unassigned'),
         //Model for the general page
         message:ko.observable('Server Configuration Wizard'),
         vendors:ko.observableArray(['Cisco(IOS)', 'juniper', 'nortel']),
@@ -41,22 +41,28 @@ $(document).ready(function() {
         storedProjects : ko.observableArray(),
         
         deleteStoredItem : function(e) {
-            console.log(e.itemKey);
             localStorage.removeItem(e.itemKey);
+            
             getListOfStoredProjects();
             return false;
+        },
+        
+        loadFromStorage : function(e) {
+            loadObject(e.storedJson);
+            var name = e.itemKey;
+            
+            if (name.indexOf('generatorStorage.') > -1) {
+                name = name.replace("generatorStorage.", "")
+            } 
+
+            self.viewModel.currentFile(name);
+            
         }
     }
-        
-    //self.viewModel.file(self.viewModel.message() + self.viewModel.hostname()                
-    //);
     
-    
-
     $('#download').click(function() {    
         var object = mapToObject();
         $("#exportFile").text(object);
-        document.location.hash = '#file';
     });
     
     $('#addPort').click( function() {
@@ -84,21 +90,22 @@ $(document).ready(function() {
         } else {
             if (name && name != "") {
                 putInStorage(name);
+                self.viewModel.currentFile(name);
                 
             } else {
                 alert("Please enter a name");
             }
-            $('#storageName').val('');
+            $('#storageName').val(name);
         }
 
         
     });
     
     function mapToObject() {
-            currentDataObject = {},
-            allPorts = self.viewModel.ports(),
-            allVlans = self.viewModel.vlans(),
-            allVrrps = self.viewModel.vrrps();
+        currentDataObject = {};
+        allPorts = self.viewModel.ports();
+        allVlans = self.viewModel.vlans();
+        allVrrps = self.viewModel.vrrps();
   
         currentDataObject.vendor = self.viewModel.vendor();
         currentDataObject.hostname = self.viewModel.hostname();
@@ -113,7 +120,6 @@ $(document).ready(function() {
         currentDataObject.stpChoice = self.viewModel.stpChoice();
         currentDataObject.bridgePriority = self.viewModel.bridgePriority();
         
-        //process the ports...
         if (allPorts.length > 0) {
             for(var i = 0; i < allPorts.length; i++) {
                 currentDataObject.ports.push(allPorts[i])
@@ -122,7 +128,7 @@ $(document).ready(function() {
         
         currentDataObject.vlans = [];
         
-        //process the ports...
+
         if (allVlans.length > 0 && self.viewModel.vlanBoolChoice() === "yes") {
             for(var i = 0; i < allVlans.length; i++) {
                 currentDataObject.vlans.push(allVlans[i]);
@@ -131,26 +137,50 @@ $(document).ready(function() {
         
         currentDataObject.vrrps = [];
         
-        //process the ports...
+
         if (allVrrps.length > 0 && self.viewModel.vrrpOptionsChoice() === "yes") {
             for(var i = 0; i < allVrrps.length; i++) {
                 currentDataObject.vrrps.push(allVrrps[i]);
             }
         }
-        
-        console.log("****** This is the raw object *****");
-        console.log("===================================");
-        console.log(currentDataObject);
-        
-        console.log("****** This is the string object *****");
-        console.log("===================================");
-        console.log(JSON.stringify(currentDataObject));
+        //
+        //console.log("****** This is the raw object *****");
+        //console.log("===================================");
+        //console.log(currentDataObject);
+        //
+        //console.log("****** This is the string object *****");
+        //console.log("===================================");
+        //console.log(JSON.stringify(currentDataObject));
         
         return JSON.stringify(currentDataObject, null, "\t");
     }
     
     //TODO: put this in a local storage session and get from it
-    function mapFromObject() {
+    function loadObject(json) {
+        var loadedItem = JSON.parse(json);
+  
+        self.viewModel.vendor(loadedItem.vendor);
+        self.viewModel.hostname(loadedItem.hostname);
+        self.viewModel.ip(loadedItem.ip);
+        self.viewModel.subnetMask(loadedItem.subnetMask);
+        self.viewModel.routingChoice(loadedItem.routingChoice);
+        self.viewModel.managementVlan(loadedItem.managementVlan);
+        self.viewModel.stackChoice(loadedItem.stackChoice);
+        
+        self.viewModel.stpChoice(loadedItem.stpChoice);
+        self.viewModel.bridgePriority(loadedItem.bridgePriority);
+        self.viewModel.ports(loadedItem.ports);
+        
+        self.viewModel.vlans(loadedItem.vlans);
+        
+        self.viewModel.vrrps(loadedItem.vrrps);
+        if (loadedItem.vrrps.length > 0 ) {
+            self.viewModel.vrrpOptionsChoice("yes"); 
+        }
+        
+        var object = mapToObject();
+        $("#exportFile").text(object);
+        
     }
     
     //mapFromObject();
@@ -159,16 +189,14 @@ $(document).ready(function() {
     //keep seesion up to date
     function putInStorage(storageName) {
         var keyNamespace = "generatorStorage.",
-            value = JSON.stringify(currentDataObject),
-            key = keyNamespace + storageName,
-            keyExists = localStorage.getItem(key);
+            value = JSON.stringify(currentDataObject);
             
-        if (keyExists) {
-            alert("cannot overwrite this item, please choose a different name");
-        } else {
+            key = keyNamespace + storageName,
+            //keyExists = localStorage.getItem(key);
+
             localStorage.setItem(key, value);
             getListOfStoredProjects();
-        }
+
         
     }
     
@@ -191,6 +219,17 @@ $(document).ready(function() {
     }
     
     getListOfStoredProjects();
+    
+    //create a file and save to desktop.
+    //function download(filename, text) {
+    //    var pom = document.createElement('a');
+    //    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    //    pom.setAttribute('download', filename);
+    //    pom.click();
+    //}
+    //Usage
+    
+    //download('test.txt', 'Hello world!');
     
     ko.applyBindings(self.viewModel);
 });
